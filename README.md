@@ -4,6 +4,14 @@ This repo is a list of my non-sensitive kcli configs.  Use at
 your own risk, no warranty, implied or otherwise, etc. etc. etc.  Ya
 know, the usual run-of-the-mill Open Source thing.
 
+> This repo is tested with libvirt networks that use a bridge and are
+> configured with a forwarding mode of `route`.  However, it should work
+> with any libvirt network that is not NAT or Isolated (i.e., you can
+> communicate with the VMs' IP addresses directly from your laptop).
+> Additionally, this repo assumes that you're creating your libvirt
+> networks outside of `kcli`.  This is because `kcli` doesn't support
+> creating libvirt networks that are routed.
+
 ## config.yml
 
 You probably don't want/need anything in this.  It's my remote target
