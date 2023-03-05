@@ -1,0 +1,46 @@
+parameters:
+  name: k8s-plan
+  install_k3s_exec: '"--flannel-backend none --disable-network-policy --disable traefik --disable servicelb"'
+  memory: 6144
+  numcpus: 4
+  ctlplanes: 1
+  threaded: False
+  disk_size: 50
+  network: k3s-1-network
+  image: ubuntu2204
+  notify: True
+  notifycmd: kubectl get pod -A
+  engine: containerd
+  wait_ready: True
+  cmds:
+    - systemctl stop snapd.socket
+    - systemctl disable snapd.socket
+    - systemctl stop snapd.service
+    - systemctl disable snapd.service
+    - sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="systemd.unified_cgroup_hierarchy=1 cgroup_no_v1=all"/g' /etc/default/grub
+    - update-grub
+    - echo bpffs /sys/fs/bpf bpf defaults 0 0 >> /etc/fstab
+    - mount /sys/fs/bpf
+    - curl -LO https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz
+    - tar xzvfC cilium-linux-amd64.tar.gz /usr/local/bin
+    - rm -f cilium-linux-amd64.tar.gz
+    - curl -L https://istio.io/downloadIstio | sh -
+    - mv istio-1*/bin/istioctl /usr/local/bin/istioctl
+    - rm -rf istio-1*
+    - curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+    - apt-get install apt-transport-https --yes
+    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" > /etc/apt/sources.list.d/helm-stable-debian.list
+    - apt-get update
+    - apt-get install helm
+k3s-1:
+  name: k3s-1
+  type: kube
+  kubetype: k3s
+  nets:
+    - k3s-1-network
+k3s-2:
+  name: k3s-2
+  type: kube
+  kubetype: k3s
+  nets:
+    - k3s-2-network

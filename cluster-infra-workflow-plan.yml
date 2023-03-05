@@ -1,0 +1,5 @@
+cluster-infra:
+  type: workflow
+  scripts:
+    - infrastructure.sh
+    - pihole.sh
