@@ -1,12 +1,11 @@
 parameters:
   name: k8s-plan
-  install_k3s_exec: '"--flannel-backend none --disable-network-policy --disable traefik --disable servicelb"'
-  memory: 6144
-  numcpus: 4
-  ctlplanes: 1
-  threaded: False
+  extra_ctlplane_args:
+    - --flannel-backend none
+    - --disable-network-policy
+    - --disable traefik
+    - --disable servicelb
   disk_size: 50
-  network: k3s-1-network
   image: ubuntu2204
   notify: True
   notifycmd: kubectl get pod -A
@@ -32,15 +31,25 @@ parameters:
     - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" > /etc/apt/sources.list.d/helm-stable-debian.list
     - apt-get update
     - apt-get install helm
+  ctlplane_memory: 2048
+  ctlplane_numcpus: 1
+  worker_memory: 4096
+  worker_numcpus: 2
 k3s-1:
-  name: k3s-1
+  name: k3s-1-ctlplane-0
   type: kube
   kubetype: k3s
   nets:
     - k3s-1-network
+  ctlplanes: 1
+  workers: 2
+  network: k3s-1-network
 k3s-2:
-  name: k3s-2
+  name: k3s-2-ctlplane-0
   type: kube
   kubetype: k3s
   nets:
-    - k3s-2-network
+    - k3s-1-network
+  network: k3s-1-network
+  ctlplanes: 1
+  workers: 2

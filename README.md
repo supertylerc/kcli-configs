@@ -23,17 +23,25 @@ This is a plan to create multiple k3s clusters.  You should probably
 replace the clusters (i.e., the top-level keys other than `.parameters`)
 as well adjust any default values in `.parameters`.  In the individual
 cluster configs (i.e., anywhere that is `.*.type: kube`), you should
-probalby change the `.nets[]` value to attach the cluster to your
-specific libvirt networks.  If you only have one libvirt network, you
-can put that in `.parameters.network` and remove the `.*.nets[]` field
-completely.
+probalby change the `.nets[]` and `.network value to attach the cluster
+to your specific libvirt networks.  If you only have one libvirt
+network, you can put that in `.parameters.network`.
+
+> I'm not sure yet if `.nets[]` works in a `.type=kube`, so this param
+> might be redundant.
 
 By default, you will get a k3s cluster with the following attributes:
-* 6GB RAM
-* 4 CPU
+* RAM
+  * Control Plane: 2GB
+  * Worker Node: 4GB
+  * Note: If only 1 node cluster, 6GB RAM is recommended
+* CPU
+  * Control Plane: 1
+  * Worker Node: 2
+  * Note: If only 1 node cluster, 4 CPUs are recommended
 * 50GB thin-provisioned disk
-* 1 controller node
-* 0 worker nodes (the controller will double as a controller)
+* kcli controller/worker defaults
+  * Two clusters exist in this repo that override this to 1/2 ctl/wrk
 * Ubuntu 22.04 (for cgroupsv2 goodness)
 * `helm`, `istioctl`, and `cilium` installed
 * BPF settings necessary for running Cilium configured
