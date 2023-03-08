@@ -19,6 +19,29 @@ echo "seconds to cancel with ctrl-c (^c)!  After 10 seconds, changes"
 echo "will proceed automatically."
 sleep 10
 
+# Taint the controller node(s)
+kubectl taint node \
+    -l node-role.kubernetes.io/control-plane=true \
+    node-role.kubernetes.io/control-plane:NoSchedule \
+    || true
+
+# Get User Inputs
+## Grafana Admin Password
+echo -n "Grafana admin password: "
+read -s GRAFANA_ADMIN_PASSWORD
+
+## Grafana Ingress Host
+echo -n "Grafana Ingress Host: "
+read GRAFANA_INGRESS_HOST
+#
+## MetalLB IP Range
+echo -n "MetalLB IP Range: "
+read METALLB_IP_RANGE
+
+## Hubble UI Ingress Host
+echo -n "Hubble UI Ingress Host: "
+read HUBBLE_UI_HOST
+
 # Ensure $KUBECONFIG is not group- or world-readable to cut down noise.
 chmod o-r $KUBECONFIG
 chmod g-r $KUBECONFIG
@@ -85,16 +108,16 @@ fi
 helm upgrade --install longhorn \
     longhorn/longhorn \
     --namespace longhorn-system \
-    --create-namespace
+    --create-namespace \
+    --wait
 
 ## Install Prometheus Operator for time series data
 ### TODO: Customize PromOp further
-echo -n "Grafana admin password: "
-read -s GRAFANA_ADMIN_PASSWORD
 helm upgrade --install prom-op \
     prometheus-community/kube-prometheus-stack \
     --namespace monitoring \
     --create-namespace \
+    --wait \
     --values - <<EOF
 grafana:
   adminPassword: $GRAFANA_ADMIN_PASSWORD
@@ -105,12 +128,11 @@ EOF
 helm upgrade --install loki \
     grafana/loki-stack \
     --namespace=loki-stack \
-    --create-namespace
+    --create-namespace \
+    --wait
 
 ## Install MetalLB
 ### Set the MetalLB IP Range
-echo -n "MetalLB IP Range: "
-read METALLB_IP_RANGE
 ### TODO: Figure out why it needs to install twice.
 ### For some reason, this chart's Prometheus settings result in the
 ### following error:
@@ -196,12 +218,11 @@ helm upgrade --install nginx-ingress \
 # (e.g., Ingress, Prometheus Operator, etc.)
 ## Create the Ingress for Hubble
 ## Configure Prometheus monitoring for all Cilium components
-echo -n "Hubble UI Ingress Host: "
-read HUBBLE_UI_HOST
 helm upgrade --install cilium \
   cilium/cilium \
   --namespace kube-system \
   --reuse-values \
+  --wait \
   --values - <<EOF
 hubble:
   ui:
@@ -228,12 +249,11 @@ prometheus:
 EOF
 
 ## Create the Ingress for Grafana
-echo -n "Grafana Ingress Host: "
-read GRAFANA_INGRESS_HOST
 helm upgrade --install prom-op \
     prometheus-community/kube-prometheus-stack \
     --namespace monitoring \
     --reuse-values \
+    --wait \
     --values - <<EOF
 grafana:
   ingress:
