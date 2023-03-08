@@ -1,0 +1,4 @@
+reboot-all:
+  type: workflow
+  scripts:
+    - reboot-all.sh

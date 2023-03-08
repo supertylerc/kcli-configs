@@ -62,7 +62,10 @@ $ kcli create plan -f k3s-plan.yml
 ```
 
 Once your cluster is created, log into every node and reboot the node to
-ensure cgroupsv1 is completely disabled.
+ensure cgroupsv1 is completely disabled.  You can use the
+`reboot-all-vms-workflow-plan.yml` plan file to do this across all known
+`kcli` VMs if you want (even those not managed in this plan!!! so be
+careful!!!).
 
 > I'm not _entirely_ sure if this is necessary in Ubuntu 22.04, but
 > we're replacing kube-proxy, and for Cilium to _completely_ replace
@@ -72,6 +75,10 @@ ensure cgroupsv1 is completely disabled.
 At this point, you will have Kubernetes clusters, but no pods will come
 because there will be no CNI.  We solve this in the next step by running
 the `cluster-infra-workflow-plan.yml` plan against each cluster.
+
+## reboot-all-vms-workflow-plan.yml
+
+This plan reboots all VMs known to `kcli` via `kcli list vms`.
 
 ## cluster-infra-workflow-plan.yml
 
