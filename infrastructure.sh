@@ -92,10 +92,13 @@ operator:
   replicas: 1
 EOF
 
-## Validate Cilium is working and delete the test pods afterward
-cilium connectivity test
+## Validate Cilium is working and delete the test pods afterward when
+## the CILIUM_RUN_TESTS env var is set
+[ ! -z ${CILIUM_RUN_TESTS+x} ] && cilium connectivity test
+[ ! -z ${CILIUM_RUN_TESTS+x} ] && kubectl delete ns cilium-test
+
+## Print the Cilium status
 cilium status
-kubectl delete ns cilium-test
 
 # Istio
 ## Install istiod
