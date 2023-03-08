@@ -136,8 +136,9 @@ $ kcli create plan -f cluster-infra-workflow-plan.yml
 This plan will do the following:
 
 * install Cilium with Hubble enabled for CNI (verified)
-* run Cilium's connectivity tests, which test actual data plane flow
-  and NetworkPolicy enforcement (verified)
+* run Cilium's connectivity tests, which test actual data plane flow, if
+  you set the `CILIUM_RUN_TESTS` environment variable (verified)
+* Add NetworkPolicy enforcement via Cilium (verified)
 * install istiod for service mesh (currently unverified)
 * install longhorn for storage (currently unverified)
 * install Prometheus Operator for time series monitoring (verified)
@@ -145,11 +146,11 @@ This plan will do the following:
 * install MetalLB for implementing the Kubernetes LoadBalancer service
   type (verified)
 * install nginx as an ingress controller (verified)
-* update Cilium deployment to enable Prometheus scraping
-* update Cilium deployment to expose Hubble UI behind an Ingress
+* update Cilium deployment to enable Prometheus scraping (currently unverified)
+* update Cilium deployment to expose Hubble UI behind an Ingress (currently unverified)
 * update Prometheus Operator deployment to expose Grafana behind an
-  Ingress
-* Create an external-dns deployment with Pi-Hole as a provider
+  Ingress (verified)
+* Create an external-dns deployment with Pi-Hole as a provider (verified)
   * You must have an existing Pi-Hole server for this
 
 At various points, this plan will ask you for some inputs:
