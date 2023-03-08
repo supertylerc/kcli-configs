@@ -29,11 +29,12 @@ parameters:
     - curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
     - apt-get install apt-transport-https --yes
     - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" > /etc/apt/sources.list.d/helm-stable-debian.list
-    - apt-get update
-    - apt-get install helm
-  ctlplane_memory: 2048
-  ctlplane_numcpus: 1
-  worker_memory: 4096
+    - apt-get update --yes
+    - apt-get install helm --yes
+    - apt-get upgrade --yes
+  ctlplane_memory: 3072
+  ctlplane_numcpus: 4
+  worker_memory: 3072
   worker_numcpus: 2
 k3s-1:
   name: k3s-1-ctlplane-0
