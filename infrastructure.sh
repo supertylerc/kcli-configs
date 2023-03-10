@@ -3,7 +3,7 @@ set -e
 set -x
 
 # Make sure we have the tools we need
-tools=(cilium istioctl helm)
+tools=(cilium helm)
 for tool in "${tools}"; do
     if ! which "${tool}" > /dev/null; then
         echo "Unable to find ${tool}, you should install it.  Bye."
@@ -99,12 +99,6 @@ EOF
 
 ## Print the Cilium status
 cilium status
-
-# Istio
-## Install istiod
-if ! kubectl get deploy -n istio-system istiod > /dev/null; then
-    istioctl install --skip-confirmation --set profile=minimal
-fi
 
 # Install the Standard Applications
 ## Install Longhorn for storage

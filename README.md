@@ -93,7 +93,6 @@ In order to run this workflow, you must have the following CLI tools installed:
 
 * kubectl
 * cilium
-* istioctl
 * helm
 
 To install them on Linux (verified on Ubuntu):
@@ -116,9 +115,6 @@ sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
 sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 
-# istioctl
-curl -L https://istio.io/downloadIstio | sh -
-
 # helm
 curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
 sudo apt-get install apt-transport-https --yes
@@ -139,7 +135,6 @@ This plan will do the following:
 * run Cilium's connectivity tests, which test actual data plane flow, if
   you set the `CILIUM_RUN_TESTS` environment variable (verified)
 * Add NetworkPolicy enforcement via Cilium (verified)
-* install istiod for service mesh (currently unverified)
 * install longhorn for storage (currently unverified)
 * install Prometheus Operator for time series monitoring (verified)
 * install Loki for log aggregation (currently unverified)
@@ -180,3 +175,30 @@ disk, etc. utilization via the default dashboards.  You should be able
 to visit `$GRAFANA_INGRESS_HOST` to see this if you're using a Pi-Hole.
 Additionally, you can see a mapping of network flows within your cluster
 by visiting `http://HUBBLE_UI_HOST`.
+
+## istio-multi-cluster.yml
+
+This workflow plan will generate Istio root and intermediate certs for
+you and then add them to the clusters.  Certs will be deleted from disk
+unless you have set the `ISTIO_CERTS_DIR` environment variable, in which
+case the certs will be moved to the specified directory on your local
+machine (i.e., the machine running `kcli`).  It will also install the
+latest stable version of `istiod` into each of the clusters, which will
+then use the generated certificates.  This will mean that the root CA is
+the same for each cluster, so it will be possible to establish trust
+between multiple Istio service meshes for multi-cluster networking
+enablement.
+
+```
+$ ISTIO_CERTS_DIR=$PWD \
+    CLUSTER_NAMES=k3s-1,k3s-2 \
+    kcli create plan \
+    -f istio-multi-cluster.yml
+```
+
+It uses the following env vars:
+
+* `ISTIO_CERTS_DIR`: Set it to wherever you want `certs/` dir to be _if_
+  you want to keep the root and intermediate certificates locally.
+* `CLUSTER_NAMES`: Set it to a comma-delimited list of clusters for
+  intermediate certificates.

@@ -1,0 +1,4 @@
+reboot-all:
+  type: workflow
+  scripts:
+    - istio-install-multicluster.sh
